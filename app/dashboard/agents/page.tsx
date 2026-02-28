@@ -1,29 +1,23 @@
+import { redirect } from 'next/navigation';
+import { createServerClient } from '@/lib/supabase/server';
 import { AgentList } from '@/components/agents/agent-list';
 import { PageHeader } from '@/components/layout/page-header';
-import type { Agent } from '@/types/agent';
 
-const agents: Agent[] = [
-  {
-    id: 'agent-1',
-    user_id: 'user-1',
-    name: 'Checkout Analyst',
-    description: 'Focuses on payment and checkout workflows.',
-    endpoint_url: 'https://example.com/agent',
-    auth_header_name: 'Authorization',
-    auth_header_value: '***',
-    agent_type: 'buyer',
-    status: 'unverified',
-    last_verified_at: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
-];
+export default async function AgentsPage() {
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return redirect('/auth/sign-in');
 
-export default function AgentsPage() {
+  const { data: agents } = await supabase
+    .from('agents')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
   return (
-    <div>
-      <PageHeader title="Agents" description="Manage your QA agents." />
-      <AgentList agents={agents} />
+    <div className="space-y-6">
+      <PageHeader title="Agents" description="Connect and manage your AI agent endpoints." />
+      <AgentList agents={agents ?? []} />
     </div>
   );
 }
