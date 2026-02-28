@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { PROMPTS } from '../anthropic/prompts';
+import { CLAUDE_MODEL } from '../anthropic/client';
 import { Scenario } from '@/types/scenario';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -55,7 +56,7 @@ export async function generateCounterpartyResponse(
   const historyText = conversationHistory.map((t) => `${t.role.toUpperCase()}: ${t.content}`).join('\n\n');
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: CLAUDE_MODEL,
     max_tokens: 500,
     messages: [{ role: 'user', content: PROMPTS.COUNTERPARTY_SIMULATOR(scenario, historyText) }]
   });

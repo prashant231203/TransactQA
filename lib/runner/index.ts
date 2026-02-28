@@ -33,7 +33,8 @@ export async function executeScenario(
       conversation.push({ role: 'agent', content: agentResponse.content, latency_ms: agentResponse.latency_ms });
       await supabase.from('traces').insert({ scenario_result_id: scenarioResultId, turn_number: turnNumber, role: 'agent', content: agentResponse.content, latency_ms: agentResponse.latency_ms });
 
-      if (detectLooping(conversation)) break;
+      const looping = detectLooping(conversation);
+      if (looping) { break; }
 
       if (turn < scenario.max_turns - 1) {
         const counterpartyResponse = await generateCounterpartyResponse(scenario, conversation);
@@ -51,6 +52,7 @@ export async function executeScenario(
     }
 
     const scorerResult = await scoreScenarioRun(scenario, conversation);
+    const finalLooping = detectLooping(conversation);
     await supabase.from('scenario_results').update({
       status: scorerResult.verdict === 'pass' ? 'passed' : 'failed',
       verdict: scorerResult.verdict,
@@ -59,8 +61,8 @@ export async function executeScenario(
       llm_judge_reasoning: scorerResult.reasoning,
       agent_hallucinated: scorerResult.agent_hallucinated,
       agent_violated_boundary: scorerResult.agent_violated_boundary,
-      agent_looped: detectLooping(conversation) || scorerResult.agent_looped,
-      total_turns: Math.floor(conversation.length / 2),
+      agent_looped: finalLooping || scorerResult.agent_looped,
+      total_turns: turnNumber,
       completed_at: new Date().toISOString()
     }).eq('id', scenarioResultId);
   } catch (err: unknown) {
@@ -96,8 +98,8 @@ export async function executeRun(
   }
 
   const { data: results } = await supabase.from('scenario_results').select('verdict').eq('run_id', runId);
-  const passed = results?.filter((r) => r.verdict === 'pass').length || 0;
-  const failed = results?.filter((r) => r.verdict === 'fail').length || 0;
+  const passed = results?.filter((r: { verdict: string | null }) => r.verdict === 'pass').length || 0;
+  const failed = results?.filter((r: { verdict: string | null }) => r.verdict === 'fail').length || 0;
   const total = results?.length || 0;
   const passRate = total > 0 ? (passed / total) * 100 : 0;
 

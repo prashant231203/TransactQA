@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { PROMPTS } from '../anthropic/prompts';
+import { CLAUDE_MODEL } from '../anthropic/client';
 import { Scenario } from '@/types/scenario';
 import { SimulatorTurn } from './simulator';
 
@@ -18,7 +19,7 @@ export interface ScorerResult {
 export async function scoreScenarioRun(scenario: Scenario, conversation: SimulatorTurn[]): Promise<ScorerResult> {
   const fullConversation = conversation.map((t) => `${t.role.toUpperCase()}: ${t.content}`).join('\n\n');
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: CLAUDE_MODEL,
     max_tokens: 800,
     messages: [{ role: 'user', content: PROMPTS.LLM_JUDGE(scenario, fullConversation) }]
   });

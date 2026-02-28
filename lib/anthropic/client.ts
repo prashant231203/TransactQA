@@ -1,5 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
+export const CLAUDE_MODEL = 'claude-opus-4-5';
+
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export interface AnthropicMessage {
@@ -13,7 +15,7 @@ export async function runAnthropicCompletion(messages: AnthropicMessage[]): Prom
   }
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: CLAUDE_MODEL,
     max_tokens: 500,
     messages
   });
