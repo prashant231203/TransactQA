@@ -1,5 +1,6 @@
 export type ScenarioResultStatus = 'pending' | 'running' | 'passed' | 'failed' | 'error';
 export type TraceRole = 'counterparty' | 'agent' | 'system';
+export type TraceType = 'message' | 'tool_call' | 'tool_response';
 
 export interface ScenarioResult {
   id: string;
@@ -17,6 +18,9 @@ export interface ScenarioResult {
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
+  tool_calls_made: Record<string, unknown>[];
+  tool_score: number | null;
+  tool_accuracy: number | null;
   scenario?: import('./scenario').Scenario;
   traces?: Trace[];
 }
@@ -30,4 +34,8 @@ export interface Trace {
   token_count: number | null;
   latency_ms: number | null;
   created_at: string;
+  trace_type: TraceType;
+  tool_name: string | null;
+  tool_params: Record<string, unknown> | null;
+  tool_response: Record<string, unknown> | null;
 }

@@ -10,6 +10,10 @@ interface TraceMessage {
     content: string;
     token_count: number | null;
     latency_ms: number | null;
+    trace_type?: string;
+    tool_name?: string | null;
+    tool_params?: Record<string, unknown> | null;
+    tool_response?: Record<string, unknown> | null;
 }
 
 interface ScenarioResultDetail {
@@ -24,6 +28,9 @@ interface ScenarioResultDetail {
     agent_hallucinated: boolean;
     agent_violated_boundary: boolean;
     agent_looped: boolean;
+    tool_score: number | null;
+    tool_accuracy: number | null;
+    tool_calls_made: Record<string, unknown>[];
     scenario?: { name: string; category: string; success_criteria: string };
     traces?: TraceMessage[];
 }
@@ -61,6 +68,7 @@ export function TraceViewer({ runId, scenarioResultId }: { runId: string; scenar
     const traces = result.traces ?? [];
     const passColor = result.verdict === 'pass' ? 'text-emerald-600' : 'text-red-600';
     const passBg = result.verdict === 'pass' ? 'bg-emerald-50' : 'bg-red-50';
+    const hasToolScoring = result.tool_score !== null && result.tool_score !== undefined;
 
     return (
         <div className="space-y-6">
@@ -83,10 +91,35 @@ export function TraceViewer({ runId, scenarioResultId }: { runId: string; scenar
                             {result.verdict === 'pass' ? '✅ Pass' : '❌ Fail'}
                         </p>
                         {result.score !== null && (
-                            <p className="text-sm font-medium text-slate-600 mt-0.5">Score: {result.score}/100</p>
+                            <p className="text-sm font-medium text-slate-600 mt-0.5">Overall: {result.score}/100</p>
                         )}
                     </div>
                 </div>
+
+                {/* Score breakdown for tool-enabled scenarios */}
+                {hasToolScoring && (
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                        <div className="rounded-lg bg-white/60 px-4 py-3">
+                            <p className="text-xs font-semibold text-slate-500 uppercase">Conversation</p>
+                            <div className="flex items-center gap-2 mt-1">
+                                <div className="h-2 flex-1 rounded-full bg-slate-200">
+                                    <div className="h-2 rounded-full bg-blue-500 transition-all" style={{ width: `${result.score ?? 0}%` }} />
+                                </div>
+                                <span className="text-sm font-bold text-slate-900">{result.score ?? 0}</span>
+                            </div>
+                        </div>
+                        <div className="rounded-lg bg-white/60 px-4 py-3">
+                            <p className="text-xs font-semibold text-slate-500 uppercase">Tool Usage</p>
+                            <div className="flex items-center gap-2 mt-1">
+                                <div className="h-2 flex-1 rounded-full bg-slate-200">
+                                    <div className="h-2 rounded-full bg-amber-500 transition-all" style={{ width: `${result.tool_score ?? 0}%` }} />
+                                </div>
+                                <span className="text-sm font-bold text-slate-900">{result.tool_score ?? 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {flags.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                         {flags.map((f) => (
@@ -101,12 +134,43 @@ export function TraceViewer({ runId, scenarioResultId }: { runId: string; scenar
                 <h3 className="text-sm font-semibold text-slate-900 mb-4">Conversation ({result.total_turns} turns)</h3>
                 <div className="space-y-4">
                     {traces.map((t) => {
+                        const traceType = t.trace_type || 'message';
+
+                        // Tool call bubble
+                        if (traceType === 'tool_call') {
+                            return (
+                                <div key={t.id} className="flex justify-center">
+                                    <div className="max-w-[85%] rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3">
+                                        <p className="text-xs font-semibold text-amber-700 mb-1">🔧 Tool Call · Turn {t.turn_number}</p>
+                                        <p className="text-sm font-mono font-medium text-amber-900">
+                                            {t.tool_name}({t.tool_params ? JSON.stringify(t.tool_params) : ''})
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // Tool response bubble
+                        if (traceType === 'tool_response') {
+                            return (
+                                <div key={t.id} className="flex justify-center">
+                                    <div className="max-w-[85%] rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3">
+                                        <p className="text-xs font-semibold text-slate-500 mb-1">📦 Tool Response · {t.tool_name}</p>
+                                        <pre className="text-xs font-mono text-slate-700 whitespace-pre-wrap overflow-auto max-h-32">
+                                            {t.tool_response ? JSON.stringify(t.tool_response, null, 2) : t.content}
+                                        </pre>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        // Regular message bubble
                         const isAgent = t.role === 'agent' || t.role === 'assistant';
                         return (
                             <div key={t.id} className={`flex ${isAgent ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[75%] rounded-2xl px-4 py-3 ${isAgent
-                                        ? 'bg-blue-500 text-white rounded-br-md'
-                                        : 'bg-slate-100 text-slate-900 rounded-bl-md'
+                                    ? 'bg-blue-500 text-white rounded-br-md'
+                                    : 'bg-slate-100 text-slate-900 rounded-bl-md'
                                     }`}>
                                     <p className={`text-xs font-medium mb-1 ${isAgent ? 'text-blue-100' : 'text-slate-500'}`}>
                                         {isAgent ? 'Agent' : 'Counterparty'} · Turn {t.turn_number}
