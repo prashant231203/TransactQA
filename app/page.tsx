@@ -1,183 +1,136 @@
 import Link from "next/link";
 
-const STEPS = [
+const METRICS = [
+  { label: "Scenarios", value: "20" },
+  { label: "Risk Domains", value: "5" },
+  { label: "Avg Runtime", value: "<2 min" },
+  { label: "Trace Depth", value: "Per turn" }
+];
+
+const FLOW = [
   {
-    number: "01",
-    title: "Connect",
-    description: "Register your agent endpoint with a URL and auth header. We verify connectivity instantly.",
-    icon: "🔌"
+    step: "01",
+    title: "Connect agent",
+    copy: "Add endpoint + auth. We verify instantly."
   },
   {
-    number: "02",
-    title: "Run",
-    description: "Launch 20 adversarial commerce scenarios — pricing traps, compliance gaps, hallucination probes.",
-    icon: "▶️"
+    step: "02",
+    title: "Run evaluations",
+    copy: "Execute adversarial commerce scenarios."
   },
   {
-    number: "03",
-    title: "Review",
-    description: "Get a scored report with pass/fail verdicts, conversation traces, and actionable failure analysis.",
-    icon: "📊"
+    step: "03",
+    title: "Ship with confidence",
+    copy: "Use traces, scores, and failure reasons to decide."
   }
 ];
 
-const CATEGORIES = [
-  {
-    name: "Inventory",
-    description: "Out-of-stock handling, partial fulfillment, SKU mismatches, product substitution",
-    count: 4,
-    color: "bg-blue-50 text-blue-700 border-blue-200"
-  },
-  {
-    name: "Pricing",
-    description: "Price floor enforcement, unauthorized discounts, currency ambiguity, retroactive changes",
-    count: 4,
-    color: "bg-emerald-50 text-emerald-700 border-emerald-200"
-  },
-  {
-    name: "Negotiation",
-    description: "Deadline pressure, counteroffer loops, payment term bait-and-switch, anchor bias",
-    count: 4,
-    color: "bg-amber-50 text-amber-700 border-amber-200"
-  },
-  {
-    name: "Compliance",
-    description: "Missing documentation, export restrictions, identity verification, verbal commitment traps",
-    count: 4,
-    color: "bg-purple-50 text-purple-700 border-purple-200"
-  },
-  {
-    name: "Error Handling",
-    description: "Slow responses, contradictory information, hallucination probes, spoofed agent identity",
-    count: 4,
-    color: "bg-rose-50 text-rose-700 border-rose-200"
-  }
+const HIGHLIGHTS = [
+  "Evidence-grade traces",
+  "Policy-aware sandbox",
+  "Skill trend scoring"
 ];
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen">
-      {/* Nav */}
-      <nav className="fixed top-0 z-50 w-full glass">
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-lg font-bold tracking-tight">TransactQA</span>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/sign-in" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-smooth">
-              Sign In
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_14px_#22d3ee]" />
+            <span className="text-lg font-semibold tracking-tight">TransactQA</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/auth/sign-in" className="rounded-md px-3 py-2 text-sm text-slate-300 transition-smooth hover:bg-white/5 hover:text-white">
+              Sign in
             </Link>
-            <Link
-              href="/auth/sign-up"
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 transition-smooth"
-            >
-              Get Started Free
+            <Link href="/auth/sign-up" className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-smooth hover:bg-slate-200">
+              Start free
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="gradient-hero pt-32 pb-20">
-        <div className="mx-auto max-w-6xl px-6 text-center">
-          <div className="mx-auto max-w-3xl space-y-6">
-            <div className="inline-flex items-center rounded-full border border-slate-700 bg-slate-800/50 px-4 py-1.5 text-xs font-medium text-slate-300">
-              <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse-dot" />
-              20 adversarial scenarios ready
-            </div>
-            <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl">
-              Automated QA for<br />
-              <span className="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
-                AI Commerce Agents
-              </span>
-            </h1>
-            <p className="mx-auto max-w-xl text-lg text-slate-400">
-              Put your agent through realistic buyer-seller conversations. Get scored verdicts,
-              conversation traces, and failure analysis before your customers find out.
+      <section className="relative overflow-hidden border-b border-white/10">
+        <div className="pointer-events-none absolute -left-28 top-8 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
+
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 lg:grid-cols-[1.2fr_0.8fr]">
+          <div>
+            <p className="mb-5 inline-flex rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
+              Modern QA for AI commerce agents
             </p>
-            <div className="flex items-center justify-center gap-4 pt-2">
-              <Link
-                href="/auth/sign-up"
-                className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg hover:bg-slate-100 transition-smooth"
-              >
-                Get Started Free →
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
+              Less guesswork.
+              <span className="bg-gradient-to-r from-cyan-300 via-blue-300 to-violet-300 bg-clip-text text-transparent"> More measurable reliability.</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-slate-300">
+              Validate policy adherence, tool behavior, and response quality before production.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/auth/sign-up" className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition-smooth hover:bg-slate-200">
+                Run first benchmark
               </Link>
-              <Link
-                href="#how-it-works"
-                className="rounded-lg border border-slate-600 px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 transition-smooth"
-              >
-                See How It Works
+              <Link href="#flow" className="rounded-lg border border-white/20 px-6 py-3 text-sm font-medium text-slate-100 transition-smooth hover:bg-white/5">
+                See flow
               </Link>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur">
+            <p className="mb-4 text-sm font-medium text-slate-300">Platform snapshot</p>
+            <div className="grid grid-cols-2 gap-3">
+              {METRICS.map((metric) => (
+                <div key={metric.label} className="rounded-xl border border-white/10 bg-slate-900/70 p-4">
+                  <p className="text-2xl font-bold text-white">{metric.value}</p>
+                  <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">{metric.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="bg-white py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center mb-16">
-            <p className="text-sm font-semibold uppercase tracking-wider text-slate-500">How It Works</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Three steps to confident deployments</h2>
+      <section id="flow" className="mx-auto max-w-6xl px-6 py-20">
+        <div className="mb-10 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wider text-cyan-300">Flow</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-white">Simple 3-step release gate</h2>
           </div>
-          <div className="grid gap-8 sm:grid-cols-3">
-            {STEPS.map((step) => (
-              <div key={step.number} className="gradient-card rounded-2xl border p-8 transition-smooth hover:shadow-lg">
-                <div className="mb-4 text-3xl">{step.icon}</div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Step {step.number}</p>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-600">{step.description}</p>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-3">
+          {FLOW.map((item) => (
+            <article key={item.step} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <p className="text-xs font-semibold tracking-wider text-cyan-300">STEP {item.step}</p>
+              <h3 className="mt-3 text-xl font-semibold text-white">{item.title}</h3>
+              <p className="mt-2 text-sm text-slate-300">{item.copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-slate-900/70">
+        <div className="mx-auto max-w-6xl px-6 py-16">
+          <div className="grid gap-4 md:grid-cols-3">
+            {HIGHLIGHTS.map((item) => (
+              <div key={item} className="rounded-xl border border-white/10 bg-slate-950/70 px-5 py-4 text-center text-sm font-medium text-slate-200">
+                {item}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Scenario Categories */}
-      <section className="bg-slate-50 py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center mb-16">
-            <p className="text-sm font-semibold uppercase tracking-wider text-slate-500">Scenario Library</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">20 adversarial scenarios across 5 categories</h2>
-            <p className="mt-3 text-slate-600">Each scenario is designed by commerce experts to probe a specific failure mode.</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {CATEGORIES.map((cat) => (
-              <div key={cat.name} className={`rounded-xl border p-6 ${cat.color} transition-smooth hover:shadow-md`}>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-bold">{cat.name}</h3>
-                  <span className="rounded-full bg-white/60 px-2.5 py-0.5 text-xs font-semibold">{cat.count} tests</span>
-                </div>
-                <p className="text-sm leading-relaxed opacity-80">{cat.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="gradient-hero py-20">
-        <div className="mx-auto max-w-3xl px-6 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Know your agent works before your customers find out it doesn&apos;t.
-          </h2>
-          <p className="text-slate-400 mb-8">
-            Connect your endpoint, run the suite, and get results in under two minutes.
-          </p>
-          <Link
-            href="/auth/sign-up"
-            className="inline-block rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 shadow-lg hover:bg-slate-100 transition-smooth"
-          >
-            Start Testing Free →
+      <section className="bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-violet-500/10">
+        <div className="mx-auto max-w-6xl px-6 py-16 text-center">
+          <h2 className="text-3xl font-bold text-white">Ready to evaluate your agent?</h2>
+          <p className="mx-auto mt-3 max-w-xl text-slate-300">Run concrete scenario checks before every release.</p>
+          <Link href="/auth/sign-up" className="mt-7 inline-block rounded-lg bg-white px-8 py-3 text-sm font-semibold text-slate-900 transition-smooth hover:bg-slate-200">
+            Get started
           </Link>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t bg-white py-8">
-        <div className="mx-auto max-w-6xl px-6 flex items-center justify-between">
-          <span className="text-sm font-bold text-slate-900">TransactQA</span>
-          <p className="text-xs text-slate-500">Scenario-driven AI transaction testing.</p>
-        </div>
-      </footer>
     </div>
   );
 }

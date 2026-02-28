@@ -21,6 +21,11 @@ async function getEngine(sessionId: string) {
     return { engine, session, supabase };
 }
 
+function mergeActionLog(sessionActionLog: unknown, newActionLog: ReturnType<SandboxEngine['getActionLog']>) {
+    const existing = Array.isArray(sessionActionLog) ? sessionActionLog : [];
+    return [...existing, ...newActionLog];
+}
+
 export async function GET(
     request: Request,
     { params }: { params: { sessionId: string; path: string[] } }
@@ -37,7 +42,7 @@ export async function GET(
     // Save updated state and action log
     await ctx.supabase.from('sandbox_sessions').update({
         current_state: ctx.engine.getState(),
-        action_log: ctx.engine.getActionLog()
+        action_log: mergeActionLog(ctx.session.action_log, ctx.engine.getActionLog())
     }).eq('id', params.sessionId);
 
     return NextResponse.json(result.data, { status: result.status });
@@ -62,7 +67,7 @@ export async function POST(
     // Save updated state and action log
     await ctx.supabase.from('sandbox_sessions').update({
         current_state: ctx.engine.getState(),
-        action_log: ctx.engine.getActionLog()
+        action_log: mergeActionLog(ctx.session.action_log, ctx.engine.getActionLog())
     }).eq('id', params.sessionId);
 
     return NextResponse.json(result.data, { status: result.status });

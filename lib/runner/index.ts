@@ -55,10 +55,12 @@ export async function executeScenario(
         toolDefs
       );
 
-      if (agentResponse.error || !agentResponse.content) {
+      const hasToolCalls = Boolean(agentResponse.tool_calls && agentResponse.tool_calls.length > 0);
+      const hasContent = Boolean(agentResponse.content && agentResponse.content.trim().length > 0);
+      if (agentResponse.error || (!hasContent && !hasToolCalls)) {
         await supabase.from('scenario_results').update({
           status: 'error',
-          failure_reason: agentResponse.error || 'Agent returned empty response',
+          failure_reason: agentResponse.error || 'Agent returned empty response with no tool calls',
           completed_at: new Date().toISOString()
         }).eq('id', scenarioResultId);
         return;
@@ -102,7 +104,7 @@ export async function executeScenario(
       turnNumber += 1;
       conversation.push({
         role: 'agent',
-        content: agentResponse.content,
+        content: hasContent ? agentResponse.content : '[Agent issued tool call(s) with no text response]',
         latency_ms: agentResponse.latency_ms,
         tool_calls: agentResponse.tool_calls
       });
@@ -110,7 +112,7 @@ export async function executeScenario(
         scenario_result_id: scenarioResultId,
         turn_number: turnNumber,
         role: 'agent',
-        content: agentResponse.content,
+          content: hasContent ? agentResponse.content : '[Agent issued tool call(s) with no text response]',
         latency_ms: agentResponse.latency_ms,
         trace_type: 'message'
       });
