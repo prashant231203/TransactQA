@@ -50,11 +50,19 @@ export class SandboxEngine {
             }
             // Route: /orders/:orderId/refund
             else if (pathSegments[0] === 'orders' && pathSegments[2] === 'refund') {
-                result = this.handleRefund(pathSegments[1], body as Record<string, unknown>);
+                if (method !== 'POST') {
+                    result = { status: 405, data: { error: 'Method not allowed' } };
+                } else {
+                    result = this.handleRefund(pathSegments[1], body as Record<string, unknown>);
+                }
             }
             // Route: /orders/:orderId/cancel
             else if (pathSegments[0] === 'orders' && pathSegments[2] === 'cancel') {
-                result = this.handleCancel(pathSegments[1]);
+                if (method !== 'POST') {
+                    result = { status: 405, data: { error: 'Method not allowed' } };
+                } else {
+                    result = this.handleCancel(pathSegments[1]);
+                }
             }
             // Route: /products
             else if (pathSegments[0] === 'products' && !pathSegments[1]) {
